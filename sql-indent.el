@@ -63,13 +63,13 @@
 (require 'regexp-opt)
 
 (defcustom sql-indent-first-column-regexp
-  (concat "^\\s-*" (regexp-opt '(
-                                 "select" "update" "insert" "delete"
-                                 "union" "intersect"
-                                 "from" "where" "into" "group" "having" "order"
-                                 "set"
-                                 "create" "drop" "truncate"
-                                 "--") t) "\\(\\b\\|\\s-\\)")
+  (concat "\\(^\\s-*" (regexp-opt '(
+                                    "select" "update" "insert" "delete"
+                                    "union" "intersect"
+                                    "from" "where" "into" "group" "having" "order"
+                                    "set"
+                                    "create" "drop" "truncate"
+                                    "--") t) "\\(\\b\\|\\s-\\)\\)\\|\\(^```$\\)")
   "Regexp matching keywords relevant for indentation.
 The regexp matches lines which start SQL statements and it matches lines
 that should be indented at the same column as the start of the SQL
