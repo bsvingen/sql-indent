@@ -4,7 +4,7 @@
 
 ;; Authors: Alex Schroeder <alex@gnu.org>
 ;;          Matt Henry <mcthenry+gnu@gmail.com>
-;; Maintainer: Matt Henry <mcthenry+gnu@gmail.com>
+;; Maintainer: Boerge Svingen <bsvingen@borkdal.com>
 ;; Version: $Id: sql-indent.el,v 1.10 2009/03/25 22:52:25 mhenry Exp $  
 
 ;; Keywords: languages
