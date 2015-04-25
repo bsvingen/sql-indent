@@ -8,7 +8,7 @@
 ;; Version: $Id: sql-indent.el,v 1.10 2009/03/25 22:52:25 mhenry Exp $
 
 ;; Keywords: languages
-;; URL: http://www.emacswiki.org/cgi-bin/wiki.pl?SqlIndent
+;; URL: https://github.com/bsvingen/sql-indent
 
 ;; This file is not part of GNU Emacs.
 
