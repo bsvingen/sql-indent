@@ -84,10 +84,6 @@ indented by `sql-indent-offset'."
   :type 'number
   :group 'SQL)
 
-(defcustom sql-indent-maybe-tab nil
-  "If non-nil, call `insert-tab' if `current-column' did not change."
-  :type 'boolean
-  :group 'SQL)
 
 (defvar sql-indent-debug nil
   "If non-nil, `sql-indent-line' will output debugging messages.")
