@@ -123,8 +123,7 @@ Return a list containing the level change and the previous indentation."
     (let* ((p-line (cond ((and prev-start prev-indent)
 			  (list prev-start prev-indent))
 			 ((sql-indent-get-last-line-start))))
-	   (curr-start (progn (beginning-of-line)
-			      (point)))
+	   (curr-start (point-at-bol))
 	   (paren (nth 0 (parse-partial-sexp (nth 0 p-line) curr-start))))
 
       ;; Add opening or closing parens.
@@ -153,8 +152,7 @@ Return a list containing the level change and the previous indentation."
   (save-excursion
     (goto-char (point-min))
     (let*
-	((line 0)
-	 (level 0)
+	((level 0)
 	 (start (point))
 	 (indent (if (looking-at "^\\s-*$")
 		     0
@@ -178,10 +176,8 @@ Return a list containing the level change and the previous indentation."
 			  0
 			level))))
 
-	(if sql-indent-debug
-	    (progn
-	      (setq line (1+ line))
-	      (message "Line %3d; level %3d; indent was %3d; at %d" line level indent (point))))
+	(when sql-indent-debug
+	  (message "Line %3d; level %3d; indent was %3d; at %d" (line-number-at-pos) level indent (point)))
 
 	(beginning-of-line)
 	(if (and (not (looking-at "^\\s-*$")) ; Leave blank lines alone
