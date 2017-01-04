@@ -2,6 +2,7 @@ Feature: Basic indentation
   Background:
     When the buffer is empty
     When I turn on sql-mode
+    When I set indent-tabs-mode to nil
 
 
   Scenario: Indent unindented SELECT statement
@@ -38,6 +39,61 @@ Feature: Basic indentation
         AND b=2
     ORDER BY c;
     """
+
+
+  Scenario: Indent typical CREATE TABLE statement
+    When I insert:
+    """
+    CREATE TABLE foo (
+    x INTEGER,
+    y INTEGER
+    );
+    """
+    When I indent the buffer
+    Then I should see:
+    """
+    CREATE TABLE foo (
+            x INTEGER,
+            y INTEGER
+            );
+    """
+
+
+   Scenario: Simple indent with brackets
+     When I insert:
+     """
+     UPDATE foo SET bar = (
+     SELECT 1
+     );
+     """
+     When I indent the buffer
+     Then I should see:
+     """
+     UPDATE foo SET bar = (
+         SELECT 1
+             );
+     """
+
+   Scenario: Indent with brackets
+     When I insert:
+     """
+     UPDATE foo SET bar = (
+     SELECT 1
+     FROM baz
+     WHERE x=1
+     AND y=2
+     );
+     """
+     When I indent the buffer
+     Then I should see:
+     """
+     UPDATE foo SET bar = (
+         SELECT 1
+         FROM baz
+         WHERE x=1
+             AND y=2
+             );
+     """
 
 
   Scenario: Setting the offset
