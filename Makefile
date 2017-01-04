@@ -10,4 +10,7 @@ build :
 clean :
 	@rm -f *.elc
 
+test :
+	cask exec ecukes
+
 .PHONY:	all test install clean build

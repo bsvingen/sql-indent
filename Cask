@@ -3,3 +3,8 @@
 (files "sql-indent.el")
 
 (source melpa-stable)
+
+
+(development
+ (depends-on "ecukes")
+ (depends-on "espuds"))
