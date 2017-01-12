@@ -3,6 +3,7 @@ Feature: Basic indentation
     When the buffer is empty
     When I turn on sql-mode
     When I set indent-tabs-mode to nil
+    When I turn on sql-indent-mode
 
 
   Scenario: Indent unindented SELECT statement

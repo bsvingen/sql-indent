@@ -185,10 +185,18 @@ Return a list containing the level change and the previous indentation."
     )
   )
 
-(add-hook 'sql-mode-hook
-	  (function (lambda ()
-		      (make-local-variable 'indent-line-function)
-		      (setq indent-line-function 'sql-indent-line))))
+(define-minor-mode sql-indent-mode
+  "A minor mode enabling more intelligent sql indentation"
+  :global nil
+
+  ;; body
+  (when sql-indent-mode
+    (make-local-variable 'indent-line-function)
+    (setq indent-line-function 'sql-indent-line))
+
+  (unless sql-indent-mode
+    (kill-local-variable 'indent-line-function)))
+
 
 (provide 'sql-indent)
 
