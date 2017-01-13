@@ -12,3 +12,9 @@ Loading this file will make all SQL mode buffers created from then on use `sql-i
   '(load-library "sql-indent"))
 ```
 
+To run the tests:
+
+1. Install [Cask](https://github.com/cask/cask).
+2. Run `cask`.
+3. Run `make test`.
+
