@@ -63,13 +63,11 @@
 (require 'regexp-opt)
 
 (defcustom sql-indent-first-column-regexp
-  (concat "\\(^\\s-*" (regexp-opt '(
-				    "select" "update" "insert" "delete"
-				    "union" "intersect"
-				    "from" "where" "into" "group" "having" "order"
-				    "set"
-				    "create" "drop" "truncate"
-				    "--") t) "\\(\\b\\|\\s-\\)\\)\\|\\(^```$\\)")
+  (rx (*? space)
+      (or "select" "update" "insert" "delete" "union" "intersect" "from"
+          "where" "into" "group" "having" "order" "set"
+          "use" "alter" "create" "drop" "truncate" "begin" "else"
+          "end" ")" "delimiter"))
   "Regexp matching keywords relevant for indentation.
 The regexp matches lines which start SQL statements and it matches lines
 that should be indented at the same column as the start of the SQL
@@ -124,27 +122,31 @@ Return a list containing the level change and the previous indentation."
 			  (list prev-start prev-indent))
 			 ((sql-indent-get-last-line-start))))
 	   (curr-start (point-at-bol))
-	   (paren (nth 0 (parse-partial-sexp (nth 0 p-line) curr-start))))
+	   (paren (nth 0 (parse-partial-sexp (nth 0 p-line) curr-start)))
+       (result
+        ;; Add opening or closing parens.
+        ;; If the current line starts with a keyword statement (e.g. SELECT,
+        ;;    FROM, ...)  back up one level
+        ;; If the previous line starts with a keyword statement then add one level
+        (list
+         (+ paren
+            (if (progn (goto-char (nth 0 p-line))
+                       (looking-at sql-indent-first-column-regexp))
+                1
+              0)
+            (if (progn (goto-char curr-start)
+                       (looking-at sql-indent-first-column-regexp))
+                -1
+              0)
+            )
+         (nth 1 p-line))))
 
-      ;; Add opening or closing parens.
-      ;; If the current line starts with a keyword statement (e.g. SELECT, FROM, ...) back up one level
-      ;; If the previous line starts with a keyword statement then add one level
-
-      (list
-       (+ paren
-	  (if (progn (goto-char (nth 0 p-line))
-		     (looking-at sql-indent-first-column-regexp))
-	      1
-	    0)
-	  (if (progn (goto-char curr-start)
-		     (looking-at sql-indent-first-column-regexp))
-	      -1
-	    0)
-	  )
-       (nth 1 p-line))
-      )
-    )
-  )
+      (save-excursion
+        (goto-char (point-at-bol))
+        ;; increase indenet level for THEN clause.
+        (when (looking-back "THEN\n+[:space:]*")
+          (setf (car result) (1+ (car result)))))
+      result)))
 
 (defun sql-indent-buffer ()
   "Indent the buffer's SQL statements."
@@ -159,31 +161,26 @@ Return a list containing the level change and the previous indentation."
 (defun sql-indent-line ()
   "Indent current line in an SQL statement."
   (interactive)
-  (let* ((pos (point))
-	 (indent-info (sql-indent-level-delta))
-	 (level-delta (nth 0 indent-info))
-	 (prev-indent (nth 1 indent-info))
-	 (this-indent (max 0            ; Make sure the indentation is at least 0
-			   (+ prev-indent
-			      (* sql-indent-offset
-				 (nth 0 indent-info)))))
-	 )
+  (let* ((pos (- (point-max) (point)))
+         (beg (progn (beginning-of-line) (point)))
+
+         (indent-info (sql-indent-level-delta))
+         (level-delta (nth 0 indent-info))
+         (prev-indent (nth 1 indent-info))
+         (this-indent (max 0            ; Make sure the indentation is at least 0
+                           (+ prev-indent
+                              (* sql-indent-offset
+                                 (nth 0 indent-info))))))
 
     (if sql-indent-debug
-	(message "SQL Indent: line: %3d, level delta: %3d; prev: %3d; this: %3d"
-		 (line-number-at-pos) level-delta prev-indent this-indent))
-
-    (save-excursion
-
-      (beginning-of-line)
-
-      (if (and (not (looking-at "^\\s-*$")) ; Leave blank lines alone
-	       (not (sql-indent-is-string-or-comment))  ; Don't mess with comments or strings
-	       (/= this-indent (current-indentation))) ; Don't change the line if already ok.
-	  (indent-line-to this-indent))
-      )
-    )
-  )
+        (message "SQL Indent: line: %3d, level delta: %3d; prev: %3d; this: %3d"
+                 (line-number-at-pos) level-delta prev-indent this-indent))
+    (skip-chars-forward " \t")
+    (indent-line-to this-indent)
+    ;; If initial point was within line's indentation,
+    ;; position after the indentation.  Else stay at same point in text.
+    (if (> (- (point-max) pos) (point))
+        (goto-char (- (point-max) pos)))))
 
 (add-hook 'sql-mode-hook
 	  (function (lambda ()
